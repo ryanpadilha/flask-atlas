@@ -36,8 +36,7 @@
                 </a>
             </li>
             <li {% if request.endpoint.endswith(('list_users', 'form_user', 'edit_user',
-                                                'list_client_secrets', 'form_client_secret', 'edit_client_secret',
-                                                'list_groups', 'form_group', 'edit_group')) %} class="treeview active menu-open" {% else %} class="treeview" {% endif %}>
+                                                'list_roles', 'form_role', 'edit_role')) %} class="treeview active menu-open" {% else %} class="treeview" {% endif %}>
                 <a href="#">
                     <i class="fa fa-laptop"></i> <span>Configuração</span>
                     <span class="pull-right-container">
@@ -45,35 +44,15 @@
                     </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li {% if request.endpoint.endswith(('list_groups', 'form_group', 'edit_group')) %} class="active" {% endif %}>
-                        <a href="{{ url_for('auth.list_groups') }}"><i class="fa fa-circle-o"></i> Grupo de Acesso</a>
+                    <li {% if request.endpoint.endswith(('list_roles', 'form_role', 'edit_role')) %} class="active" {% endif %}>
+                        <a href="{{ url_for('auth.list_roles') }}"><i class="fa fa-circle-o"></i> Cadastro de Papel</a>
                     </li>
                     <li {% if request.endpoint.endswith(('list_users', 'form_user', 'edit_user')) %} class="active" {% endif %}>
-                        <a href="{{ url_for('auth.list_users') }}"><i class="fa fa-circle-o"></i> Usuários</a>
-                    </li>
-                    <li {% if request.endpoint.endswith(('list_client_secrets', 'form_client_secret', 'edit_client_secret')) %} class="active" {% endif %}>
-                        <a href="{{ url_for('auth.list_client_secrets') }}"><i class="fa fa-circle-o"></i> Auth REST API</a>
+                        <a href="{{ url_for('auth.list_users') }}"><i class="fa fa-circle-o"></i> Cadastro de Usuário</a>
                     </li>
                 </ul>
             </li>
 
-            <li {% if request.endpoint.endswith(('list_clients', 'form_client', 'edit_client',
-                                                'list_institutions', 'form_institution', 'edit_institution')) %} class="treeview active menu-open" {% else %} class="treeview" {% endif %}>
-                <a href="#">
-                    <i class="fa fa-table"></i> <span>Parametrização</span>
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li {% if request.endpoint.endswith(('list_clients', 'form_client', 'edit_client')) %} class="active" {% endif %}>
-                        <a href="{{ url_for('parameter.list_clients') }}"><i class="fa fa-circle-o"></i> Controle de Cliente GL</a>
-                    </li>
-                    <li {% if request.endpoint.endswith(('list_institutions', 'form_institution', 'edit_institution')) %} class="active" {% endif %}>
-                        <a href="{{ url_for('parameter.list_institutions') }}"><i class="fa fa-circle-o"></i> Controle de Empresa</a>
-                    </li>
-                </ul>
-            </li>
         </ul>
     </section>
 </aside>

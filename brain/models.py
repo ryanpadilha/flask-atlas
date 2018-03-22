@@ -39,7 +39,7 @@ class ErrorObject(object):
     @classmethod
     def throw_service_unavailable(cls, url):
         json_data = build_service_unavailable_message_rest(url)
-        return json_data
+        return ErrorObject.from_dict(json_data)
 
     @classmethod
     def from_dict(cls, json_data):
@@ -70,7 +70,7 @@ class AuthenticationObject(BaseModel):
 
 class UserObject(UserMixin):
     def __init__(self, internal, created, active, name, phone, document_main, username, password, user_email,
-                 last_password_reset_date, file_name, file_url, company, occupation, user_group):
+                 last_password_reset_date, file_name, file_url, company, occupation, roles):
         self.internal = internal
         self.created = created
         self.active = active
@@ -85,7 +85,7 @@ class UserObject(UserMixin):
         self.file_url = file_url
         self.company = company
         self.occupation = occupation
-        self.user_group = user_group
+        self.roles = roles
 
     def get_id(self):
         return self.internal
@@ -104,21 +104,21 @@ class UserObject(UserMixin):
         last_password_reset_date = json_data.get('last_password_reset_date')
         file_name = json_data.get('file_name')
         file_url = json_data.get('file_url')
-        company = json_data.get('company')
-        occupation = json_data.get('occupation')
-        type_group = json_data.get('group')
+        company = json_data.get('company', '')
+        occupation = json_data.get('occupation', '')
+        type_role = json_data.get('roles')
 
-        if isinstance(type_group, list):
-            user_group = []
-            for g in type_group:
-                user_group.append(UserGroupObject.from_dict(g))
+        if isinstance(type_role, list):
+            roles = []
+            for g in type_role:
+                roles.append(RoleObject.from_dict(g))
         else:
-            user_group = UserGroupObject.from_dict(type_group)
+            roles = RoleObject.from_dict(type_role)
 
         return UserObject(internal=internal, created=created, active=active, name=name, phone=phone,
                           document_main=document_main, username=username, password=password, user_email=user_email,
                           last_password_reset_date=last_password_reset_date, file_name=file_name, file_url=file_url,
-                          company=company, occupation=occupation, user_group=user_group)
+                          company=company, occupation=occupation, roles=roles)
 
     @classmethod
     def to_list_of_object(cls, json_data):
@@ -131,7 +131,7 @@ class UserObject(UserMixin):
             UserObject.from_dict(json_data)
 
 
-class UserGroupObject(BaseModel):
+class RoleObject(BaseModel):
     def __init__(self, name, type, description, internal=None, created=None):
         self.name = name
         self.type = type
@@ -146,16 +146,16 @@ class UserGroupObject(BaseModel):
         description = json_data.get('description')
         internal = json_data.get('internal')
         created = epoch_to_date(json_data.get('created'))
-        return UserGroupObject(name=name, type=type, description=description, internal=internal, created=created)
+        return RoleObject(name=name, type=type, description=description, internal=internal, created=created)
 
     @classmethod
     def to_list_of_object(cls, json_data):
         if isinstance(json_data, list):
             collection = []
             for o in json_data:
-                collection.append(UserGroupObject.from_dict(o))
+                collection.append(RoleObject.from_dict(o))
             return collection
         else:
-            UserGroupObject.from_dict(json_data)
+            RoleObject.from_dict(json_data)
 
 

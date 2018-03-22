@@ -5,7 +5,7 @@
     <ol class="breadcrumb">
         <li><a href="{{ url_for('website.index') }}"><i class="fa fa-dashboard"></i> Home</a></li>
         <li>Parametrização</li>
-        <li class="active">Cadastro de Grupo de Acesso</li>
+        <li class="active">Cadastro de Papel</li>
     </ol>
 </section>
 
@@ -21,13 +21,13 @@
             </div>
         </div>
 
-        <form role="form" method="POST">
+        <form role="form" method="POST" autocomplete="off">
         	<div class="box-body">
                 <div class="row">
                     <div class="col-md-6">
                         <div {% if form.name.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.name.label }}
-                            {{ form.name(class_='form-control') }}
+                            {{ form.name(class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.name.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -37,7 +37,7 @@
                     <div class="col-md-6">
                         <div {% if form.type.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.type.label }}
-                            {{ form.type(class_='form-control') }}
+                            {{ form.type(class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.type.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -47,7 +47,7 @@
                 </div>
                 <div {% if form.description.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                     {{ form.description.label }}
-                    {{ form.description(class_='form-control') }}
+                    {{ form.description(class_='form-control', autocomplete='nope') }}
 
 					{% for error in form.description.errors %}
                         <span class="help-block">{{ error }}</span>
@@ -57,7 +57,7 @@
         	<div class="box-footer">
         		{{ form.hidden_tag() }}
                 <button type="submit" class="btn btn-primary pull-right" style="width: 100px;">Salvar</button>
-                <a href="{{ url_for('auth.list_groups') }}">
+                <a href="{{ url_for('auth.list_roles') }}">
                 	<button type="button" class="btn btn-default pull-right" style="width: 100px; margin-right: 5px;">Voltar</button>
                 </a>
             </div>

@@ -2,7 +2,7 @@
 {% block content %}
 <div class="login-box">
     <div class="login-logo">
-        <a href="#"><b>Hachiko</b></a>
+        <a href="#"><b>Atlas Auth</b></a>
     </div>
 
     <div class="login-box-body">
@@ -30,9 +30,11 @@
         </div>
         <div class="row">
             <div class="col-xs-8">
+                {#
                 <div class="checkbox icheck">
                     <label>{{ form.remember_me }} <i></i>{{ form.remember_me.label }}</label>
                 </div>
+                #}
             </div>
             <div class="col-xs-4">
                 {{ form.hidden_tag() }}
@@ -43,7 +45,7 @@
     </form>
     </div>
     <div class="lockscreen-footer text-center">
-        Copyright &copy; 2018 <b><a href="http://wplex.com.br" target="_blank" class="text-black">WPLEX Software</a></b><br>
+        Copyright &copy; 2018 <b><a href="#" target="_blank" class="text-black">Flask-Atlas</a></b><br>
         Versão 1.00 BR-020318:2110
     </div>
 </div>

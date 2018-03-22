@@ -2,7 +2,7 @@ import json
 import requests
 
 from flask import current_app as app
-from ..models import UserObject, UserGroupObject, ErrorObject
+from ..models import UserObject, RoleObject, ErrorObject
 
 
 mode = ''
@@ -26,11 +26,11 @@ API_USER = {
 }
 
 API_USER_GROUP = {
-    'list': API_BASE_URL + '/api/v1/auth/user-groups',
-    'get_by_internal': API_BASE_URL + '/api/v1/auth/user-groups/{}',
-    'persist': API_BASE_URL + '/api/v1/auth/user-groups',
-    'update': API_BASE_URL + '/api/v1/auth/user-groups/{}',
-    'delete': API_BASE_URL + '/api/v1/auth/user-groups/{}',
+    'list': API_BASE_URL + '/api/v1/auth/roles',
+    'get_by_internal': API_BASE_URL + '/api/v1/auth/roles/{}',
+    'persist': API_BASE_URL + '/api/v1/auth/roles',
+    'update': API_BASE_URL + '/api/v1/auth/roles/{}',
+    'delete': API_BASE_URL + '/api/v1/auth/roles/{}',
 }
 
 
@@ -48,16 +48,17 @@ class IntegrationResource(object):
         }
 
     @classmethod
-    def parser_response_error(cls, r, url=None):
-        if r and r.content:
-            result = json.loads(r.content.decode('utf-8'))
-            error_obj = ErrorObject.from_dict(result)
-            return error_obj
+    def parser_response_error(cls, response, url=None):
+        content = response.content.decode('utf-8') if response.content else None
+        if content:
+            result = json.loads(content)
+            return ErrorObject.from_dict(result)
         return ErrorObject.throw_service_unavailable(url)
 
     def get(self, **kwargs):
         try:
             result = []
+            r = requests.Response()
             r = requests.get(url=self.url, headers=self.headers(), allow_redirects=False, timeout=self.timeout, **kwargs)
             r.raise_for_status()
 
@@ -65,16 +66,16 @@ class IntegrationResource(object):
                 result = json.loads(r.content.decode('utf-8'))
         except requests.exceptions.Timeout as e:
             app.logger.error('Timeout Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.HTTPError as e:
             app.logger.error('HTTP Error Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.ConnectionError as e:
             app.logger.error('ConnectionError Exception: {}'.format(e))
-            return self.parser_response_error(r=None, url=self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.RequestException as e:
             app.logger.error('Request Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
 
         return result
 
@@ -84,6 +85,7 @@ class IntegrationResource(object):
             if data:
                 data = data.encode('utf-8')
 
+            r = requests.Response()
             r = requests.post(url=self.url, data=data, headers=self.headers(),
                               allow_redirects=False, verify=False, **kwargs)
             r.raise_for_status()
@@ -92,16 +94,16 @@ class IntegrationResource(object):
                 result = json.loads(r.content.decode('utf-8'))
         except requests.exceptions.Timeout as e:
             app.logger.error('Timeout Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.HTTPError as e:
             app.logger.error('HTTP Error Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.ConnectionError as e:
             app.logger.error('ConnectionError Exception: {}'.format(e))
-            return self.parser_response_error(r=None, url=self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.RequestException as e:
             app.logger.error('Request Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
 
         return result
 
@@ -111,6 +113,7 @@ class IntegrationResource(object):
             if data:
                 data = data.encode('utf-8')
 
+            r = requests.Response()
             r = requests.put(url=self.url, data=data, headers=self.headers(),
                              allow_redirects=False, verify=False, **kwargs)
             r.raise_for_status()
@@ -119,16 +122,16 @@ class IntegrationResource(object):
                 result = json.loads(r.content.decode('utf-8'))
         except requests.exceptions.Timeout as e:
             app.logger.error('Timeout Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.HTTPError as e:
             app.logger.error('HTTP Error Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.ConnectionError as e:
             app.logger.error('ConnectionError Exception: {}'.format(e))
-            return self.parser_response_error(r=None, url=self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.RequestException as e:
             app.logger.error('Request Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
 
         return result
 
@@ -138,6 +141,7 @@ class IntegrationResource(object):
             if data:
                 data = data.encode('utf-8')
 
+            r = requests.Response()
             r = requests.delete(url=self.url, data=data, headers=self.headers(),
                                 allow_redirects=False, verify=False, **kwargs)
             r.raise_for_status()
@@ -146,16 +150,16 @@ class IntegrationResource(object):
                 result = json.loads(r.content.decode('utf-8'))
         except requests.exceptions.Timeout as e:
             app.logger.error('Timeout Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.HTTPError as e:
             app.logger.error('HTTP Error Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.ConnectionError as e:
             app.logger.error('ConnectionError Exception: {}'.format(e))
-            return self.parser_response_error(r=None, url=self.url)
+            return self.parser_response_error(response=r, url=self.url)
         except requests.exceptions.RequestException as e:
             app.logger.error('Request Exception: {}'.format(e))
-            return self.parser_response_error(r, self.url)
+            return self.parser_response_error(response=r, url=self.url)
 
         return result
 
@@ -175,8 +179,8 @@ class UserResource(IntegrationResource):
 
     def find_by_username(self, username):
         self.url = API_USER['find_by_username'].format(username)
-        obj = self.get()
-        return UserObject.from_dict(obj)
+        data = self.get()
+        return UserObject.from_dict(data)
 
     def list(self):
         self.url = API_USER['list']
@@ -185,13 +189,14 @@ class UserResource(IntegrationResource):
 
     def get_by_internal(self, internal):
         self.url = API_USER['get_by_internal'].format(internal)
-        obj = self.get()
-        return UserObject.from_dict(obj)
+        data = self.get()
+        return UserObject.from_dict(data)
 
     def persist(self, data):
         self.url = API_USER['persist']
-        obj = self.post(data=data)
-        return UserObject.from_dict(obj)
+        data = self.post(data=data)
+
+        return UserObject.from_dict(data)
 
     def update(self, internal, data):
         self.url = API_USER['update'].format(internal)
@@ -203,24 +208,24 @@ class UserResource(IntegrationResource):
         return self.delete()
 
 
-class UserGroupResource(IntegrationResource):
+class RoleResource(IntegrationResource):
     def __init__(self, credentials):
-        super(UserGroupResource, self).__init__(credentials)
+        super(RoleResource, self).__init__(credentials)
 
     def list(self):
         self.url = API_USER_GROUP['list']
-        collection = self.get()
-        return UserGroupObject.to_list_of_object(collection)
+        obj = self.get()
+        return [] if isinstance(obj, ErrorObject) else RoleObject.to_list_of_object(obj)
 
     def get_by_internal(self, internal):
         self.url = API_USER_GROUP['get_by_internal'].format(internal)
         obj = self.get()
-        return UserGroupObject.from_dict(obj)
+        return obj if isinstance(obj, ErrorObject) else RoleObject.from_dict(obj)
 
     def persist(self, data):
         self.url = API_USER_GROUP['persist']
         obj = self.post(data=data)
-        return UserGroupObject.from_dict(obj)
+        return obj if isinstance(obj, ErrorObject) else RoleObject.from_dict(obj)
 
     def update(self, internal, data):
         self.url = API_USER_GROUP['update'].format(internal)

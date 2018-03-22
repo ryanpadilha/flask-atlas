@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, session
 from flask_login import login_required, login_user, logout_user, current_user
-from ..forms import LoginForm, UserForm, UserEditForm, UserChangePasswordForm, AuthApiForm, UserGroupForm
+from ..forms import LoginForm, UserForm, UserEditForm, UserChangePasswordForm, RoleForm
 from ..application import f_images, login_manager
-from ..util.library import generate_secret_key, jwt_decode
+from ..util.library import jwt_decode
 from ..util.enums import FlashMessagesCategory
-from .client_api import LoginResource, UserResource, UserGroupResource
-from ..models import AuthenticationObject, Credential, UserObject, UserGroupObject, ErrorObject
+from .client_api import LoginResource, UserResource, RoleResource
+from ..models import AuthenticationObject, Credential, UserObject, RoleObject, ErrorObject
 from ..util.authentication import AuthHeader
 from jose.exceptions import JWTError, ExpiredSignatureError, JWTClaimsError
 from flask import current_app as app
@@ -105,67 +105,6 @@ def login():
 def logout():
     logout_user()
     return redirect('login')
-
-
-@auth.route('/manage/client-secret', methods=['GET'])
-@login_required
-def list_client_secrets():
-    clients = AuthApi.query.all()
-    return render_template('manage/list-client-secret.html', clients=clients)
-
-
-@auth.route('/manage/client-secret/form', methods=['GET', 'POST'])
-@login_required
-def form_client_secret():
-    form = AuthApiForm()
-
-    if form.validate_on_submit():
-        client = AuthApi(client_secret=form.client_secret.data,
-                         api_key=generate_secret_key())
-
-        try:
-            db.session.add(client)
-            db.session.commit()
-
-            return redirect(url_for('auth.list_client_secrets'))
-        except Exception as e:
-            abort(500, e)
-
-    return render_template('manage/form-client-secret.html', form=form)
-
-
-@auth.route('/manage/client-secret/<uuid:internal>/edit', methods=['GET', 'POST'])
-@login_required
-def edit_client_secret(internal):
-    client = AuthApi.query.filter_by(internal=internal).first()
-    form = AuthApiForm(obj=client)
-
-    if form.validate_on_submit():
-        client.client_secret = form.client_secret.data
-
-        try:
-            db.session.commit()
-
-            return redirect(url_for('auth.list_client_secrets'))
-        except Exception as e:
-            abort(500, e)
-
-    return render_template('manage/form-client-secret.html', form=form)
-
-
-@auth.route('/manage/client-secret/delete', methods=['POST'])
-@login_required
-def delete_client_secret():
-    client = AuthApi.query.filter_by(internal=request.form['recordId']).first()
-
-    try:
-        db.session.delete(client)
-        db.session.commit()
-
-        flash(u'Registro deletado com sucesso.', category=FlashMessagesCategory.INFO.value)
-        return redirect(url_for('auth.list_client_secrets'))
-    except Exception as e:
-        abort(500, e)
 
 
 @auth.route('/manage/user', methods=['GET'])
@@ -302,68 +241,67 @@ def view_profile():
     return render_template('manage/view-profile.html', form=form)
 
 
-@auth.route('/manage/group')
+@auth.route('/manage/role')
 @login_required
-def list_groups():
-    groups = UserGroupResource(credentials=AuthHeader.get_credentials()).list()
-    return render_template('manage/list-group.html', groups=groups)
+def list_roles():
+    roles = RoleResource(credentials=AuthHeader.get_credentials()).list()
+    return render_template('manage/list-role.html', roles=roles)
 
 
-@auth.route('/manage/group/form', methods=['GET', 'POST'])
+@auth.route('/manage/role/form', methods=['GET', 'POST'])
 @login_required
-def form_group():
-    form = UserGroupForm()
+def form_role():
+    form = RoleForm()
 
     if form.validate_on_submit():
-        group = UserGroupObject(name=form.name.data,
-                                type=form.type.data.upper(),
-                                description=form.description.data)
-        data = group.to_json()
+        role = RoleObject(name=form.name.data,
+                          type=form.type.data.upper(),
+                          description=form.description.data).to_json()
 
         try:
-            r = UserGroupResource(credentials=AuthHeader.get_credentials()).persist(data=data)
-            error_obj = ErrorObject.from_dict(r)
+            obj = RoleResource(credentials=AuthHeader.get_credentials()).persist(data=role)
+            if isinstance(obj, ErrorObject):
+                flash(obj.issues, category=FlashMessagesCategory.ERROR.value)
+                return render_template('manage/form-role.html', form=form)
 
-            if error_obj:
-                flash(error_obj.issues, category=FlashMessagesCategory.ERROR.value)
-                return render_template('manage/form-group.html', form=form)
-
-            return redirect(url_for('auth.list_groups'))
+            return redirect(url_for('auth.list_roles'))
         except Exception as e:
             abort(500, e)
 
-    return render_template('manage/form-group.html', form=form)
+    return render_template('manage/form-role.html', form=form)
 
 
-@auth.route('/manage/group/<uuid:internal>/edit', methods=['GET', 'POST'])
+@auth.route('/manage/role/<uuid:internal>/edit', methods=['GET', 'POST'])
 @login_required
-def edit_group(internal):
-    group = UserGroupResource(credentials=AuthHeader.get_credentials()).get_by_internal(internal=internal)
-    form = UserGroupForm(obj=group)
+def edit_role(internal):
+    form = RoleForm()
+
+    if request.method == 'GET':
+        role = RoleResource(credentials=AuthHeader.get_credentials()).get_by_internal(internal=internal)
+        form.process(obj=role)
 
     if form.validate_on_submit():
-        group.name = form.name.data
-        group.type = form.type.data.upper()
-        group.description = form.description.data
-        data = group.to_json()
+        role = RoleObject(name=form.name.data,
+                          type=form.type.data.upper(),
+                          description=form.description.data).to_json()
 
         try:
-            UserGroupResource(credentials=AuthHeader.get_credentials()).update(internal=internal, data=data)
-            return redirect(url_for('auth.list_groups'))
+            RoleResource(credentials=AuthHeader.get_credentials()).update(internal=internal, data=role)
+            return redirect(url_for('auth.list_roles'))
         except Exception as e:
             abort(500, e)
 
-    return render_template('manage/form-group.html', form=form)
+    return render_template('manage/form-role.html', form=form)
 
 
-@auth.route('/manage/group/delete', methods=['POST'])
+@auth.route('/manage/role/delete', methods=['POST'])
 @login_required
-def delete_group():
+def delete_role():
     try:
         internal = request.form['recordId']
-        UserGroupResource(credentials=AuthHeader.get_credentials()).delete_entity(internal=internal)
+        RoleResource(credentials=AuthHeader.get_credentials()).delete_entity(internal=internal)
 
         flash(u'Registro deletado com sucesso.', category=FlashMessagesCategory.INFO.value)
-        return redirect(url_for('auth.list_groups'))
+        return redirect(url_for('auth.list_roles'))
     except Exception as e:
         abort(500, e)

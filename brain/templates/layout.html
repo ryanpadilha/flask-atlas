@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Hachiko | Dashboard</title>
+  <title>Atlas Authentication Server | Dashboard</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
   <!-- Bootstrap 3.3.7 -->
@@ -18,6 +18,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
   <!-- jvectormap -->
   <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/jvectormap/jquery-jvectormap.css') }}">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/select2/dist/css/select2.min.css') }}">
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/AdminLTE.min.css') }}">
   <!-- AdminLTE Skins. Choose a skin from the css/skins
@@ -52,12 +54,17 @@
 <script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="{{ url_for('static', filename='bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+<!-- Select2 -->
+<script src="{{ url_for('static', filename='bower_components/select2/dist/js/select2.full.min.js') }}"></script>
 <!-- FastClick -->
 <script src="{{ url_for('static', filename='bower_components/fastclick/lib/fastclick.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ url_for('static', filename='dist/js/adminlte.min.js') }}"></script>
 <!-- Sparkline -->
 <script src="{{ url_for('static', filename='bower_components/jquery-sparkline/dist/jquery.sparkline.min.js') }}"></script>
+
+<!-- CK Editor -->
+<script src="{{ url_for('static', filename='bower_components/ckeditor/ckeditor.js') }}"></script>
 
 <!-- InputMask -->
 <script src="{{ url_for('static', filename='plugins/input-mask/jquery.inputmask.js') }}"></script>
@@ -78,30 +85,41 @@
 <script src="{{ url_for('static', filename='bower_components/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
 
 <script>
-  $(function () {
-    $('#dt_basic').DataTable({
-    	'ordering'    : false,
-    	'searching'   : false,
-    	'lengthChange': false,
-    })
-    $('#example2').DataTable({
-      'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
-      'ordering'    : true,
-      'info'        : true,
-      'autoWidth'   : false
-    })
-  });
+    $(function () {
+        $('#dt_basic').DataTable({
+    	    'paging'      : true,
+    	    'ordering'    : false,
+    	    'searching'   : true,
+    	    'lengthChange': true,
+    	    'info'        : true,
+    	    'autoWidth'   : true,
+    	    'language': {
+    	        'emptyTable': 'Nenhum registro para ser exibido',
+    	        'info': 'Exibindo _START_ a _END_ de _TOTAL_ registros',
+    	        'infoEmpty': 'Nenhum registro',
+    	        'loadingRecords': 'Carregando...',
+    	        'processing': 'Processando...',
+                'lengthMenu': '_MENU_  registros',
+                'search': 'Pesquisar:',
+                'zeroRecords': 'Nenhum registro encontrado',
+                'paginate': {
+                    'first': 'Primeiro',
+                    'last': "Último",
+                    'next': "Próximo",
+                    'previous': "Anterior"
+                }
+            }
+        })
+    });
 
-  $(document).on("click", ".open-modal", function () {
-	var internalId = $(this).data('internal');
-	$(".modal-footer #internal").val(internalId);
-  });
+    $(document).on("click", ".open-modal", function () {
+	    var internalId = $(this).data('internal');
+	    $(".modal-footer #internal").val(internalId);
+    });
 
-  $(document).ready(function () {
-    $('.sidebar-menu').tree()
-  });
+    $(document).ready(function () {
+        $('.sidebar-menu').tree()
+    });
 
     //Date picker
     $('#datepicker-container .input-group.date').datepicker({
@@ -117,6 +135,9 @@
     $('#document-main-cpf').inputmask('999.999.999-99')
     $('#phone-mobile').inputmask('(99) 99999-9999')
     $('#phone-principal').inputmask('(99) 9999-9999')
+    $('#published').inputmask('99/99/9999')
+    $('#date_start').inputmask('99/99/9999')
+    $('#date_end').inputmask('99/99/9999')
 
     $(document).on("click", ".open-modal", function () {
         var recordId = $(this).data('id');
@@ -125,6 +146,11 @@
         $(".modal-footer #recordId").val(recordId);
         $(".modal-footer #recordStatus").val(recordStatus);
 	});
+
+	$(function () {
+        CKEDITOR.replace('ck_editor')
+        CKEDITOR.config.height = '500';
+    })
 </script>
 </body>
 </html>
