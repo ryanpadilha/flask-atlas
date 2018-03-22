@@ -1,0 +1,50 @@
+{% extends "auth/auth-layout.html" %}
+{% block content %}
+<div class="login-box">
+    <div class="login-logo">
+        <a href="#"><b>Hachiko</b></a>
+    </div>
+
+    <div class="login-box-body">
+        {% include 'commons/messages.html' %}
+
+        <p class="login-box-msg"><strong>Entrar no Painel Administrativo</strong></p>
+        <form action="{{ url_for('auth.login') }}" method="post">
+        <div {% if form.email.errors %} class="form-group has-error" {% else %} class="form-group has-feedback" {% endif %}>
+            {{ form.email.label }}
+            {{ form.email(class_="form-control") }}
+            <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+
+            {% for error in form.email.errors %}
+                <span class="help-block">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div {% if form.password.errors %} class="form-group has-error" {% else %} class="form-group has-feedback" {% endif %}>
+            {{ form.password.label }}
+            {{ form.password(class_="form-control") }}
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+
+            {% for error in form.password.errors %}
+                <span class="help-block">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-xs-8">
+                <div class="checkbox icheck">
+                    <label>{{ form.remember_me }} <i></i>{{ form.remember_me.label }}</label>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                {{ form.hidden_tag() }}
+                <input type="hidden" value="{{ next or '' }}" name="next" id="next">
+                <button type="submit" class="btn btn-primary btn-block btn-flat">Entrar</button>
+            </div>
+        </div>
+    </form>
+    </div>
+    <div class="lockscreen-footer text-center">
+        Copyright &copy; 2018 <b><a href="http://wplex.com.br" target="_blank" class="text-black">WPLEX Software</a></b><br>
+        Versão 1.00 BR-020318:2110
+    </div>
+</div>
+{% endblock %}
