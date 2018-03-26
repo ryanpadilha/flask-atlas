@@ -63,6 +63,9 @@ def create_app(mode=None):
     from .views.auth import auth
     app.register_blueprint(auth)
 
+    from .views.manage import manage
+    app.register_blueprint(manage)
+
     from .views.error_handler import error_handler
     app.register_blueprint(error_handler)
 

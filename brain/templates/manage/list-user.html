@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="box-header" style="width: 150px;">
-        	<a href="{{ url_for('auth.form_user') }}">
+        	<a href="{{ url_for('manage.form_user') }}">
         	    <button type="button" class="btn btn-block btn-primary">Novo Cadastro</button>
         	</a>
         </div>
@@ -45,7 +45,7 @@
                 <tr>
                 	<td>{{ user.name }}</td>
                 	<td>{{ user.user_email }}</td>
-                    <td>{{ user.user_group.name }}</td>
+                    <td></td>
                 	<td>{{ user.created }}</td>
                 	<td>{{ 'Ativo' if user.active else 'Inativo' }}</td>
                     <td>
@@ -54,7 +54,7 @@
                         {% endif %}
                     </td>
                 	<td class="text-center footable-visible footable-last-column">
-                		<a href="{{ url_for('auth.edit_user', internal=user.internal) }}">
+                		<a href="{{ url_for('manage.edit_user', internal=user.internal) }}">
                 			<button type="button" class="btn bg-navy btn-xs"><i class="fa fa-edit"></i></button>
                 		</a>
                 	</td>
@@ -80,7 +80,7 @@
                     <h4 class="modal-title"><i class="fa fa-warning"></i>&nbsp;Confirmação</h4>
                 </div>
 
-                <form role="form" method="POST" action="{{ url_for('auth.delete_user') }}">
+                <form role="form" method="POST" action="{{ url_for('manage.delete_user') }}">
 	                <div class="modal-body">
 	                    <p>Deseja realmente <strong>deletar o registro?</strong></p>
 	                </div>

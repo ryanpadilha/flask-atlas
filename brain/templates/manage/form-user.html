@@ -22,18 +22,18 @@
             </div>
         </div>
 
-        <form role="form" method="POST" enctype="multipart/form-data">
+        <form role="form" method="POST" enctype="multipart/form-data" autocomplete="off">
         	<div class="box-body">
                 <h4 style="background-color:#f7f7f7; font-size: 18px; font-weight: bold; text-align: center; padding: 7px 10px; margin-top: 0;">
                     Dados de Login
                 </h4>
                 <div class="row">
                     <div class="col-md-6">
-                        <div {% if form.groups.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
-                            {{ form.groups.label }}
-                            {{ form.groups(class_='form-control') }}
+                        <div {% if form.roles.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
+                            {{ form.roles.label }}
+                            {{ form.roles(class_='form-control select2', multiple='multiple', autocomplete='nope') }}
 
-                            {% for error in form.groups.errors %}
+                            {% for error in form.roles.errors %}
                                 <span class="help-block">{{ error }}</span>
                             {% endfor %}
                         </div>
@@ -41,7 +41,7 @@
                     <div class="col-md-6">
                         <div {% if form.active.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.active.label }}
-                            {{ form.active(class_='form-control') }}
+                            {{ form.active(class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.active.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -53,7 +53,7 @@
                     <div class="col-md-6">
                         <div {% if form.name.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.name.label }}
-                            {{ form.name(class_='form-control') }}
+                            {{ form.name(class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.name.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -63,7 +63,7 @@
                     <div class="col-md-6">
                         <div {% if form.user_email.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.user_email.label }}
-                            {{ form.user_email(class_='form-control') }}
+                            {{ form.user_email(class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.user_email.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -77,7 +77,7 @@
                     <div class="col-md-6">
                         <div {% if form.user_password.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.user_password.label }}
-                            {{ form.user_password(class_='form-control') }}
+                            {{ form.user_password(class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.user_password.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -87,7 +87,7 @@
                     <div class="col-md-6">
                         <div {% if form.confirm_password.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.confirm_password.label }}
-                            {{ form.confirm_password(class_='form-control') }}
+                            {{ form.confirm_password(class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.confirm_password.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -104,7 +104,7 @@
                     <div class="col-md-6">
                         <div {% if form.document_main.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.document_main.label }}
-                            {{ form.document_main(id='document-main-cpf', class_='form-control') }}
+                            {{ form.document_main(id='document-main-cpf', class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.document_main.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -114,7 +114,7 @@
                     <div class="col-md-6">
                         <div {% if form.phone.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.phone.label }}
-                            {{ form.phone(id='phone-mobile', class_='form-control') }}
+                            {{ form.phone(id='phone-mobile', class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.phone.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -126,7 +126,7 @@
                     <div class="col-md-6">
                         <div {% if form.company.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.company.label }}
-                            {{ form.company(class_='form-control') }}
+                            {{ form.company(class_='form-control', autocomplete='nope') }}
 
                             {% for error in form.company.errors %}
                                 <span class="help-block">{{ error }}</span>
@@ -136,7 +136,7 @@
                     <div class="col-md-6">
                         <div {% if form.occupation.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.occupation.label }}
-                            {{ form.occupation(class_='form-control') }}
+                            {{ form.occupation(class_='form-control', autocomplete='nope') }}
 
 
                             {% for error in form.occupation.errors %}
@@ -148,7 +148,7 @@
 
                 <div {% if form.photo.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                     {{ form.photo.label }}
-					{{ form.photo(class_='form-control') }}
+					{{ form.photo(class_='form-control', autocomplete='nope') }}
 
                     {% if file_url %}
                         Image armazenada: <a href="{{ file_url }}" target="_{{ file_name }}">{{ file_name }}</a>
@@ -162,7 +162,7 @@
         	<div class="box-footer">
         		{{ form.hidden_tag() }}
                 <button type="submit" class="btn btn-primary pull-right" style="width: 100px;">Salvar</button>
-                <a href="{{ url_for('auth.list_users') }}">
+                <a href="{{ url_for('manage.list_users') }}">
                 	<button type="button" class="btn btn-default pull-right" style="width: 100px; margin-right: 5px;">Voltar</button>
                 </a>
             </div>

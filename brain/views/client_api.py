@@ -3,7 +3,8 @@ import requests
 
 from flask import current_app as app
 from ..models import UserObject, RoleObject, ErrorObject
-
+from ..util.authentication import AuthHeader
+from ..util.enums import RequestMethod
 
 mode = ''
 
@@ -35,9 +36,8 @@ API_USER_GROUP = {
 
 
 class IntegrationResource(object):
-    def __init__(self, credentials, url=None, timeout=120):
+    def __init__(self, credentials, timeout=120):
         self.credentials = credentials
-        self.url = url
         self.timeout = timeout
 
     def headers(self):
@@ -55,182 +55,96 @@ class IntegrationResource(object):
             return ErrorObject.from_dict(result)
         return ErrorObject.throw_service_unavailable(url)
 
-    def get(self, **kwargs):
-        try:
-            result = []
-            r = requests.Response()
-            r = requests.get(url=self.url, headers=self.headers(), allow_redirects=False, timeout=self.timeout, **kwargs)
-            r.raise_for_status()
-
-            if r.content:
-                result = json.loads(r.content.decode('utf-8'))
-        except requests.exceptions.Timeout as e:
-            app.logger.error('Timeout Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.HTTPError as e:
-            app.logger.error('HTTP Error Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.ConnectionError as e:
-            app.logger.error('ConnectionError Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.RequestException as e:
-            app.logger.error('Request Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-
-        return result
-
-    def post(self, data=None, **kwargs):
+    def invoke_request(self, request_method, url, data=None, **kwargs):
         try:
             result = []
             if data:
                 data = data.encode('utf-8')
 
             r = requests.Response()
-            r = requests.post(url=self.url, data=data, headers=self.headers(),
-                              allow_redirects=False, verify=False, **kwargs)
+
+            if request_method == RequestMethod.GET:
+                r = requests.get(url=url, headers=self.headers(), allow_redirects=False, timeout=self.timeout, **kwargs)
+            elif request_method == RequestMethod.POST:
+                r = requests.post(url=url, data=data, headers=self.headers(), allow_redirects=False, verify=False, **kwargs)
+            elif request_method == RequestMethod.PUT:
+                r = requests.put(url=url, data=data, headers=self.headers(), allow_redirects=False, verify=False, **kwargs)
+            elif request_method == RequestMethod.DELETE:
+                r = requests.delete(url=url, data=data, headers=self.headers(), allow_redirects=False, verify=False, **kwargs)
+
             r.raise_for_status()
 
             if r.content:
                 result = json.loads(r.content.decode('utf-8'))
         except requests.exceptions.Timeout as e:
             app.logger.error('Timeout Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
+            return self.parser_response_error(response=r, url=url)
         except requests.exceptions.HTTPError as e:
             app.logger.error('HTTP Error Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
+            return self.parser_response_error(response=r, url=url)
         except requests.exceptions.ConnectionError as e:
             app.logger.error('ConnectionError Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
+            return self.parser_response_error(response=r, url=url)
         except requests.exceptions.RequestException as e:
             app.logger.error('Request Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-
-        return result
-
-    def put(self, data=None, **kwargs):
-        try:
-            result = []
-            if data:
-                data = data.encode('utf-8')
-
-            r = requests.Response()
-            r = requests.put(url=self.url, data=data, headers=self.headers(),
-                             allow_redirects=False, verify=False, **kwargs)
-            r.raise_for_status()
-
-            if r.content:
-                result = json.loads(r.content.decode('utf-8'))
-        except requests.exceptions.Timeout as e:
-            app.logger.error('Timeout Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.HTTPError as e:
-            app.logger.error('HTTP Error Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.ConnectionError as e:
-            app.logger.error('ConnectionError Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.RequestException as e:
-            app.logger.error('Request Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-
-        return result
-
-    def delete(self, data=None, **kwargs):
-        try:
-            result = []
-            if data:
-                data = data.encode('utf-8')
-
-            r = requests.Response()
-            r = requests.delete(url=self.url, data=data, headers=self.headers(),
-                                allow_redirects=False, verify=False, **kwargs)
-            r.raise_for_status()
-
-            if r.content:
-                result = json.loads(r.content.decode('utf-8'))
-        except requests.exceptions.Timeout as e:
-            app.logger.error('Timeout Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.HTTPError as e:
-            app.logger.error('HTTP Error Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.ConnectionError as e:
-            app.logger.error('ConnectionError Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
-        except requests.exceptions.RequestException as e:
-            app.logger.error('Request Exception: {}'.format(e))
-            return self.parser_response_error(response=r, url=self.url)
+            return self.parser_response_error(response=r, url=url)
 
         return result
 
 
 class LoginResource(IntegrationResource):
-    def __init__(self, credentials):
-        super(LoginResource, self).__init__(credentials)
+    def __init__(self):
+        super(LoginResource, self).__init__(credentials=AuthHeader.get_credentials())
 
     def authentication(self, data):
-        self.url = API_USER['login']
-        return self.post(data=data)
+        return self.invoke_request(request_method=RequestMethod.POST, url=API_USER['login'], data=data)
 
 
 class UserResource(IntegrationResource):
-    def __init__(self, credentials):
-        super(UserResource, self).__init__(credentials)
-
-    def find_by_username(self, username):
-        self.url = API_USER['find_by_username'].format(username)
-        data = self.get()
-        return UserObject.from_dict(data)
+    def __init__(self):
+        super(UserResource, self).__init__(credentials=AuthHeader.get_credentials())
 
     def list(self):
-        self.url = API_USER['list']
-        collection = self.get()
-        return UserObject.to_list_of_object(collection)
+        obj = self.invoke_request(RequestMethod.GET, url=API_USER['list'])
+        return [] if isinstance(obj, ErrorObject) else UserObject.to_list_of_object(obj)
 
     def get_by_internal(self, internal):
-        self.url = API_USER['get_by_internal'].format(internal)
-        data = self.get()
-        return UserObject.from_dict(data)
+        obj = self.invoke_request(RequestMethod.GET, url=API_USER['get_by_internal'].format(internal))
+        return obj if isinstance(obj, ErrorObject) else UserObject.from_dict(obj)
+
+    def find_by_username(self, username):
+        obj = self.invoke_request(RequestMethod.GET, url=API_USER['find_by_username'].format(username))
+        return obj if isinstance(obj, ErrorObject) else UserObject.from_dict(obj)
 
     def persist(self, data):
-        self.url = API_USER['persist']
-        data = self.post(data=data)
-
-        return UserObject.from_dict(data)
+        obj = self.invoke_request(RequestMethod.POST, url=API_USER['persist'], data=data)
+        return obj if isinstance(obj, ErrorObject) else UserObject.from_dict(obj)
 
     def update(self, internal, data):
-        self.url = API_USER['update'].format(internal)
-        obj = self.put(data=data)
-        return UserObject.from_dict(obj)
+        return self.invoke_request(RequestMethod.PUT, url=API_USER['update'].format(internal), data=data)
 
     def delete_entity(self, internal):
-        self.url = API_USER['delete'].format(internal)
-        return self.delete()
+        return self.invoke_request(RequestMethod.DELETE, url=API_USER['delete'].format(internal))
 
 
 class RoleResource(IntegrationResource):
-    def __init__(self, credentials):
-        super(RoleResource, self).__init__(credentials)
+    def __init__(self):
+        super(RoleResource, self).__init__(credentials=AuthHeader.get_credentials())
 
     def list(self):
-        self.url = API_USER_GROUP['list']
-        obj = self.get()
+        obj = self.invoke_request(RequestMethod.GET, url=API_USER_GROUP['list'])
         return [] if isinstance(obj, ErrorObject) else RoleObject.to_list_of_object(obj)
 
     def get_by_internal(self, internal):
-        self.url = API_USER_GROUP['get_by_internal'].format(internal)
-        obj = self.get()
+        obj = self.invoke_request(RequestMethod.GET, url=API_USER_GROUP['get_by_internal'].format(internal))
         return obj if isinstance(obj, ErrorObject) else RoleObject.from_dict(obj)
 
     def persist(self, data):
-        self.url = API_USER_GROUP['persist']
-        obj = self.post(data=data)
+        obj = self.invoke_request(RequestMethod.POST, url=API_USER_GROUP['persist'], data=data)
         return obj if isinstance(obj, ErrorObject) else RoleObject.from_dict(obj)
 
     def update(self, internal, data):
-        self.url = API_USER_GROUP['update'].format(internal)
-        return self.put(data=data)
+        return self.invoke_request(RequestMethod.PUT, url=API_USER_GROUP['update'].format(internal), data=data)
 
     def delete_entity(self, internal):
-        self.url = API_USER_GROUP['delete'].format(internal)
-        return self.delete()
+        return self.invoke_request(RequestMethod.DELETE, url=API_USER_GROUP['delete'].format(internal))

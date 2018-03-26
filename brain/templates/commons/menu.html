@@ -45,10 +45,10 @@
                 </a>
                 <ul class="treeview-menu">
                     <li {% if request.endpoint.endswith(('list_roles', 'form_role', 'edit_role')) %} class="active" {% endif %}>
-                        <a href="{{ url_for('auth.list_roles') }}"><i class="fa fa-circle-o"></i> Cadastro de Papel</a>
+                        <a href="{{ url_for('manage.list_roles') }}"><i class="fa fa-circle-o"></i> Cadastro de Papel</a>
                     </li>
                     <li {% if request.endpoint.endswith(('list_users', 'form_user', 'edit_user')) %} class="active" {% endif %}>
-                        <a href="{{ url_for('auth.list_users') }}"><i class="fa fa-circle-o"></i> Cadastro de Usuário</a>
+                        <a href="{{ url_for('manage.list_users') }}"><i class="fa fa-circle-o"></i> Cadastro de Usuário</a>
                     </li>
                 </ul>
             </li>

@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="box-header" style="width: 150px;">
-        	<a href="{{ url_for('auth.form_role') }}">
+        	<a href="{{ url_for('manage.form_role') }}">
         	    <button type="button" class="btn btn-block btn-primary">Novo Cadastro</button>
         	</a>
         </div>
@@ -46,7 +46,7 @@
                     <td>{{ role.description }}</td>
                     <td>{{ role.created }}</td>
                 	<td class="text-center footable-visible footable-last-column">
-                		<a href="{{ url_for('auth.edit_role', internal=role.internal) }}">
+                		<a href="{{ url_for('manage.edit_role', internal=role.internal) }}">
                 			<button type="button" class="btn bg-navy btn-xs"><i class="fa fa-edit"></i></button>
                 		</a>
                 	</td>
@@ -72,7 +72,7 @@
                     <h4 class="modal-title"><i class="fa fa-warning"></i>&nbsp;Confirmação</h4>
                 </div>
 
-                <form role="form" method="POST" action="{{ url_for('auth.delete_role') }}">
+                <form role="form" method="POST" action="{{ url_for('manage.delete_role') }}">
 	                <div class="modal-body">
 	                    <p>Deseja realmente <strong>deletar o registro?</strong></p>
 	                </div>

@@ -61,7 +61,7 @@ class UserEditForm(FlaskForm):
 
     def __init__(self, **kwargs):
         super(UserEditForm, self).__init__(**kwargs)
-        roles = RoleResource(credentials=AuthHeader.get_credentials()).list()
+        roles = RoleResource().list()
         self.roles.choices = [(g.internal, g.name) for g in roles]
         self.active.choices = [(1, u'Ativo'),(0, u'Inativo')]
 
