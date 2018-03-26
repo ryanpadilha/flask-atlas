@@ -73,7 +73,10 @@ def login():
         l_credentials = Credential(provider='', authorization='', expires=0)
         transaction = LoginResource(credentials=l_credentials).authentication(data=user_json)
 
-        if transaction and not transaction.get('issues'):
+        if isinstance(transaction, ErrorObject):
+            flash(u'O email ou o número de telefone inserido não corresponde a nenhuma conta',
+                  category=FlashMessagesCategory.ERROR.value)
+        else:
             AuthHeader.set_credentials(access_token=transaction.get('access_token'),
                                        expires=transaction.get('expires_in'))
 
@@ -93,9 +96,6 @@ def login():
                     return redirect(next_url or url_for('website.index'))
             else:
                 flash(u'Problema desconhecido ao recuperar usuário', category=FlashMessagesCategory.ERROR.value)
-        else:
-            flash(u'O email ou o número de telefone inserido não corresponde a nenhuma conta',
-                  category=FlashMessagesCategory.ERROR.value)
 
     return render_template('auth/login.html', form=form, next=next_url)
 
@@ -278,7 +278,8 @@ def edit_role(internal):
 
     if request.method == 'GET':
         role = RoleResource(credentials=AuthHeader.get_credentials()).get_by_internal(internal=internal)
-        form.process(obj=role)
+        if not isinstance(role, ErrorObject):
+            form.process(obj=role)
 
     if form.validate_on_submit():
         role = RoleObject(name=form.name.data,
@@ -286,7 +287,11 @@ def edit_role(internal):
                           description=form.description.data).to_json()
 
         try:
-            RoleResource(credentials=AuthHeader.get_credentials()).update(internal=internal, data=role)
+            obj = RoleResource(credentials=AuthHeader.get_credentials()).update(internal=internal, data=role)
+            if isinstance(obj, ErrorObject):
+                flash(obj.issues, category=FlashMessagesCategory.ERROR.value)
+                return render_template('manage/form-role.html', form=form)
+
             return redirect(url_for('auth.list_roles'))
         except Exception as e:
             abort(500, e)
@@ -298,10 +303,12 @@ def edit_role(internal):
 @login_required
 def delete_role():
     try:
-        internal = request.form['recordId']
-        RoleResource(credentials=AuthHeader.get_credentials()).delete_entity(internal=internal)
+        obj = RoleResource(credentials=AuthHeader.get_credentials()).delete_entity(internal=request.form['recordId'])
+        if isinstance(obj, ErrorObject):
+            flash(obj.issues, category=FlashMessagesCategory.ERROR.value)
+        else:
+            flash(u'Registro deletado com sucesso.', category=FlashMessagesCategory.INFO.value)
 
-        flash(u'Registro deletado com sucesso.', category=FlashMessagesCategory.INFO.value)
         return redirect(url_for('auth.list_roles'))
     except Exception as e:
         abort(500, e)
