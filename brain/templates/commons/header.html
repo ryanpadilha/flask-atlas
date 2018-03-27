@@ -194,7 +194,7 @@
                             <p>
                                 {% if current_user.is_authenticated %}
 				                    {{ current_user.name }}
-                                    <small>Membro desde {{ current_user.created }}</small>
+                                    <small>Membro desde {{ current_user.created|epoch2date }}</small>
                                 {% endif %}
                             </p>
                         </li>

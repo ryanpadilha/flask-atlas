@@ -8,7 +8,6 @@ from wtforms.validators import DataRequired, Email, EqualTo, Length
 from flask_wtf.file import FileAllowed
 from .application import f_images
 from .views.client_api import RoleResource
-from .util.authentication import AuthHeader
 
 
 def my_strip_filter(value):
@@ -56,13 +55,12 @@ class UserEditForm(FlaskForm):
     occupation = StringField(u'Cargo')
     phone = StringField(u'Telefone Celular *', validators=[DataRequired(u'Informe o telefone')])
     document_main = StringField(u'CPF')
-    roles = SelectMultipleField(u'Papeis *', coerce=int,
+    roles = SelectMultipleField(u'Papeis *', coerce=str,
                                 validators=[DataRequired(u'Selecione pelo menos um papel')])
 
     def __init__(self, **kwargs):
         super(UserEditForm, self).__init__(**kwargs)
-        roles = RoleResource().list()
-        self.roles.choices = [(g.internal, g.name) for g in roles]
+        self.roles.choices = [(g.type, g.name) for g in RoleResource().list()]
         self.active.choices = [(1, u'Ativo'),(0, u'Inativo')]
 
 

@@ -40,13 +40,16 @@
                             {{ current_user.user_email }}
                         </li>
                         <li class="list-group-item">
-                            <b>Acesso de &nbsp;</b>{{ current_user.user_group.name }}
+                            <b>Acesso de &nbsp;</b>
+                            {% for r in current_user.roles %}
+                                {{ r.type }},
+                            {% endfor %}
                         </li>
                         <li class="list-group-item">
                             <b>Último Login &nbsp;</b>01/01/2018 10:20
                         </li>
                     </ul>
-                    <a href="{{ url_for('auth.edit_user', internal=current_user.internal) }}" class="btn btn-primary btn-block"><b>Editar</b></a>
+                    <a href="{{ url_for('manage.edit_user', internal=current_user.internal) }}" class="btn btn-primary btn-block"><b>Editar</b></a>
                 </div>
             </div>
 

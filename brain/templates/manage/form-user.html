@@ -29,28 +29,6 @@
                 </h4>
                 <div class="row">
                     <div class="col-md-6">
-                        <div {% if form.roles.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
-                            {{ form.roles.label }}
-                            {{ form.roles(class_='form-control select2', multiple='multiple', autocomplete='nope') }}
-
-                            {% for error in form.roles.errors %}
-                                <span class="help-block">{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div {% if form.active.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
-                            {{ form.active.label }}
-                            {{ form.active(class_='form-control', autocomplete='nope') }}
-
-                            {% for error in form.active.errors %}
-                                <span class="help-block">{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
                         <div {% if form.name.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
                             {{ form.name.label }}
                             {{ form.name(class_='form-control', autocomplete='nope') }}
@@ -97,6 +75,28 @@
                 </div>
                 {% endif %}
 
+                <div class="row">
+                    <div class="col-md-6">
+                        <div {% if form.roles.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
+                            {{ form.roles.label }}
+                            {{ form.roles(class_='form-control select2', multiple='multiple', autocomplete='nope') }}
+
+                            {% for error in form.roles.errors %}
+                                <span class="help-block">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div {% if form.active.errors %} class="form-group has-error" {% else %} class="form-group" {% endif %}>
+                            {{ form.active.label }}
+                            {{ form.active(class_='form-control', autocomplete='nope') }}
+
+                            {% for error in form.active.errors %}
+                                <span class="help-block">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
                 <h4 style="background-color:#f7f7f7; font-size: 18px; font-weight: bold; text-align: center; padding: 7px 10px; margin-top: 0;">
                     Dados Pessoais
                 </h4>

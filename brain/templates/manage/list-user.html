@@ -45,8 +45,12 @@
                 <tr>
                 	<td>{{ user.name }}</td>
                 	<td>{{ user.user_email }}</td>
-                    <td></td>
-                	<td>{{ user.created }}</td>
+                    <td>
+                        {% for r in user.roles %}
+                            {{ r.type }}
+                        {% endfor %}
+                    </td>
+                	<td>{{ user.created|epoch2date }}</td>
                 	<td>{{ 'Ativo' if user.active else 'Inativo' }}</td>
                     <td>
                         {% if user.file_name %}

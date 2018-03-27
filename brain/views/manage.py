@@ -1,5 +1,5 @@
 from flask import Blueprint, abort, render_template, url_for, redirect, request, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from ..util.enums import FlashMessagesCategory
 from .client_api import RoleResource, UserResource
 from ..models import RoleObject, ErrorObject, UserObject
@@ -96,19 +96,22 @@ def form_user():
     if form.validate_on_submit():
         user = UserObject(active=form.active.data,
                           name=form.name.data,
-                          user_name=form.user_email.data.lower(),
+                          username=form.user_email.data.lower(),
                           user_email=form.user_email.data.lower(),
                           password=form.user_password.data,
-                          user_group_id=form.groups.data,
                           file_name=None,
                           file_url=None,
                           company=form.company.data,
                           occupation=form.occupation.data,
-                          phone=form.phone.data.replace('(','').replace(') ', '').replace('-',''),
-                          document_main=form.document_main.data).to_json()
+                          phone=form.phone.data.replace('(', '').replace(') ', '').replace('-', ''),
+                          document_main=form.document_main.data)
+
+        user.roles.clear()
+        for role in form.roles.data:
+            user.roles.append(role)
 
         try:
-            obj = UserResource().persist(data=user)
+            obj = UserResource().persist(data=user.to_json())
             if isinstance(obj, ErrorObject):
                 flash(obj.issues, category=FlashMessagesCategory.ERROR.value)
                 return render_template('manage/form-user.html', form=form)
@@ -128,23 +131,32 @@ def edit_user(internal):
     if request.method == 'GET':
         user = UserResource().get_by_internal(internal=internal)
         if not isinstance(user, ErrorObject):
-            form.process(obj=user, groups=user.user_group.internal)
+            form.process(obj=user)
+
+            role_list = []
+            for r in user.roles:
+                role_list.append(r.type)
+            form.roles.default = role_list
+            form.roles.process(request.form)
 
     if form.validate_on_submit():
         user = UserObject(active=form.active.data,
                           name=form.name.data,
-                          user_name=form.user_email.data.lower(),
+                          username=form.user_email.data.lower(),
                           user_email=form.user_email.data.lower(),
-                          user_group_id=form.groups.data,
                           file_name=None,
                           file_url=None,
                           company=form.company.data,
                           occupation=form.occupation.data,
                           phone=form.phone.data.replace('(', '').replace(') ', '').replace('-', ''),
-                          document_main=form.document_main.data).to_json()
+                          document_main=form.document_main.data)
+
+        user.roles.clear()
+        for role in form.roles.data:
+            user.roles.append(role)
 
         try:
-            obj = UserResource().update(internal=internal, data=user)
+            obj = UserResource().update(internal=internal, data=user.to_json())
             if isinstance(obj, ErrorObject):
                 flash(obj.issues, category=FlashMessagesCategory.ERROR.value)
                 return render_template('manage/form-user.html', form=form)
@@ -177,8 +189,10 @@ def view_profile():
     form = UserChangePasswordForm()
 
     if form.validate_on_submit():
-        obj = UserResource().get_by_internal(current_user.internal)
-        user = UserObject.from_dict(obj)
+        user = UserResource().get_by_internal(current_user.internal)
+        if isinstance(user, ErrorObject):
+            flash(user.issues, category=FlashMessagesCategory.ERROR.value)
+            return render_template('manage/view-profile.html', form=form)
 
         # verificando se senha atual confere
         # if not user.verify_password(form.current_password.data):
@@ -186,13 +200,15 @@ def view_profile():
         #     return render_template('manage/view-profile.html', form=form)
 
         user.password = form.user_password.data
-        data = user.to_json()
 
         try:
-            UserResource.persist(data=data)
+            obj = UserResource().update(internal=user.internal, data=user.to_json())
+            if isinstance(obj, ErrorObject):
+                flash(obj.issues, category=FlashMessagesCategory.ERROR.value)
+            else:
+                flash(u'Alteração de senha realizada com sucesso. A alteração ocorre apenas uma vez por sessão.',
+                      category=FlashMessagesCategory.INFO.value)
 
-            flash(u'Alteração de senha realizada com sucesso. A alteração ocorre apenas uma vez por sessão.',
-                  category=FlashMessagesCategory.INFO.value)
             return redirect(url_for('manage.view_profile'))
         except Exception as e:
             abort(500, e)

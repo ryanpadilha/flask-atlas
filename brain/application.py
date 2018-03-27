@@ -69,8 +69,4 @@ def create_app(mode=None):
     from .views.error_handler import error_handler
     app.register_blueprint(error_handler)
 
-    # REST API section
-    from .views.website_api import website_api
-    app.register_blueprint(website_api)
-
     return app

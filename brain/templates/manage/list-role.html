@@ -44,7 +44,7 @@
                 	<td>{{ role.name }}</td>
                     <td>{{ role.type }}</td>
                     <td>{{ role.description }}</td>
-                    <td>{{ role.created }}</td>
+                    <td>{{ role.created|epoch2date }}</td>
                 	<td class="text-center footable-visible footable-last-column">
                 		<a href="{{ url_for('manage.edit_role', internal=role.internal) }}">
                 			<button type="button" class="btn bg-navy btn-xs"><i class="fa fa-edit"></i></button>

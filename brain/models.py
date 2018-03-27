@@ -1,7 +1,6 @@
 import json
 
 from flask_login import UserMixin
-from .util.library import epoch_to_date
 from .integrations import build_service_unavailable_message_rest
 
 
@@ -68,9 +67,9 @@ class AuthenticationObject(BaseModel):
         self.password = password
 
 
-class UserObject(UserMixin):
-    def __init__(self, internal, created, active, name, phone, document_main, username, password, user_email,
-                 last_password_reset_date, file_name, file_url, company, occupation, roles):
+class UserObject(UserMixin, BaseModel):
+    def __init__(self, active, name, phone, document_main, username, user_email, file_name, file_url, company,
+                 occupation, password=None, last_password_reset_date=None, roles=None, internal=None, created=None):
         self.internal = internal
         self.created = created
         self.active = active
@@ -85,7 +84,7 @@ class UserObject(UserMixin):
         self.file_url = file_url
         self.company = company
         self.occupation = occupation
-        self.roles = roles
+        self.roles = roles or []
 
     def get_id(self):
         return self.internal
@@ -104,21 +103,21 @@ class UserObject(UserMixin):
         last_password_reset_date = json_data.get('last_password_reset_date')
         file_name = json_data.get('file_name')
         file_url = json_data.get('file_url')
-        company = json_data.get('company', '')
-        occupation = json_data.get('occupation', '')
-        type_role = json_data.get('roles')
+        company = json_data.get('company') or ''
+        occupation = json_data.get('occupation') or ''
+        roles = json_data.get('roles')
 
-        if isinstance(type_role, list):
-            roles = []
-            for g in type_role:
-                roles.append(RoleObject.from_dict(g))
+        if isinstance(roles, list):
+            roles_user = []
+            for g in roles:
+                roles_user.append(RoleObject.from_dict(g))
         else:
-            roles = RoleObject.from_dict(type_role)
+            roles_user = RoleObject.from_dict(roles)
 
         return UserObject(internal=internal, created=created, active=active, name=name, phone=phone,
                           document_main=document_main, username=username, password=password, user_email=user_email,
                           last_password_reset_date=last_password_reset_date, file_name=file_name, file_url=file_url,
-                          company=company, occupation=occupation, roles=roles)
+                          company=company, occupation=occupation, roles=roles_user)
 
     @classmethod
     def to_list_of_object(cls, json_data):
@@ -143,9 +142,9 @@ class RoleObject(BaseModel):
     def from_dict(cls, json_data):
         name = json_data.get('name')
         type = json_data.get('type')
-        description = json_data.get('description')
+        description = json_data.get('description') or ''
         internal = json_data.get('internal')
-        created = epoch_to_date(json_data.get('created'))
+        created = json_data.get('created')
         return RoleObject(name=name, type=type, description=description, internal=internal, created=created)
 
     @classmethod
