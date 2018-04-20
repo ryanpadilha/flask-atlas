@@ -30,12 +30,12 @@
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu" data-widget="tree">
             <li class="header">MAIN NAVIGATION</li>
-            <li {% if request.endpoint.endswith(('index')) %} class="active" {% endif %}>
+            <li {% if request.endpoint and request.endpoint.endswith(('index')) %} class="active" {% endif %}>
                 <a href="{{ url_for('website.index') }}">
                     <i class="fa fa-th"></i> <span>Página Inicial</span>
                 </a>
             </li>
-            <li {% if request.endpoint.endswith(('list_users', 'form_user', 'edit_user',
+            <li {% if request.endpoint and request.endpoint.endswith(('list_users', 'form_user', 'edit_user',
                                                 'list_roles', 'form_role', 'edit_role')) %} class="treeview active menu-open" {% else %} class="treeview" {% endif %}>
                 <a href="#">
                     <i class="fa fa-laptop"></i> <span>Configuração</span>
@@ -44,10 +44,10 @@
                     </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li {% if request.endpoint.endswith(('list_roles', 'form_role', 'edit_role')) %} class="active" {% endif %}>
+                    <li {% if request.endpoint and request.endpoint.endswith(('list_roles', 'form_role', 'edit_role')) %} class="active" {% endif %}>
                         <a href="{{ url_for('manage.list_roles') }}"><i class="fa fa-circle-o"></i> Cadastro de Papel</a>
                     </li>
-                    <li {% if request.endpoint.endswith(('list_users', 'form_user', 'edit_user')) %} class="active" {% endif %}>
+                    <li {% if request.endpoint and request.endpoint.endswith(('list_users', 'form_user', 'edit_user')) %} class="active" {% endif %}>
                         <a href="{{ url_for('manage.list_users') }}"><i class="fa fa-circle-o"></i> Cadastro de Usuário</a>
                     </li>
                 </ul>
