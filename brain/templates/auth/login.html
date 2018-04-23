@@ -2,13 +2,15 @@
 {% block content %}
 <div class="login-box">
     <div class="login-logo">
-        <a href="#"><b>Atlas Auth</b></a>
+        <a href="#">
+            <img src="{{ url_for('static', filename='dist/img/wplex-logo-color.png') }}" height="40" alt="">
+        </a>
     </div>
 
     <div class="login-box-body">
         {% include 'commons/messages.html' %}
 
-        <p class="login-box-msg"><strong>Entrar no Painel Administrativo</strong></p>
+        <p class="login-box-msg"><strong>Atlas Authentication</strong></p>
         <form action="{{ url_for('auth.login') }}" method="post">
         <div {% if form.email.errors %} class="form-group has-error" {% else %} class="form-group has-feedback" {% endif %}>
             {{ form.email.label }}
@@ -45,8 +47,8 @@
     </form>
     </div>
     <div class="lockscreen-footer text-center">
-        Copyright &copy; 2018 <b><a href="#" target="_blank" class="text-black">Flask-Atlas</a></b><br>
-        Versão 1.00 BR-020318:2110
+        Copyright &copy; 2018 <b><a href="http://wplex.com.br" target="_blank" class="text-black">WPLEX Software</a></b><br>
+        Versão 1.00 BR-230418:1140
     </div>
 </div>
 {% endblock %}

@@ -3394,12 +3394,12 @@ table.text-center th {
 }
 .login-page,
 .register-page {
-  background: #d2d6de;
+  background: rgb(238,238,238);
 }
 .login-box,
 .register-box {
   width: 420px;
-  margin: 7% auto;
+  margin: 2% auto;
 }
 @media (max-width: 768px) {
   .login-box,
@@ -3414,6 +3414,7 @@ table.text-center th {
   padding: 20px;
   border-top: 0;
   color: #666;
+  border: 1px solid #d2d6de;
 }
 .login-box-body .form-control-feedback,
 .register-box-body .form-control-feedback {
