@@ -13,48 +13,10 @@ from flask import current_app as app
 auth = Blueprint('auth', __name__)
 
 
-def add_user_global_auth(token, user):
-    app.logger.info('add_user_global_auth: user {}, token {}'.format(user, token))
-
-    global G_USERS_AUTH
-    # remove_user_by_internal(user.internal)
-    G_USERS_AUTH.append(
-        {
-            'token': token,
-            'user': user
-        }
-    )
-
-
-def find_user_by_internal(internal):
-    for item in G_USERS_AUTH:
-        app.logger.info('find_user_by_internal: item {}'.format(item))
-        if item.get('user').internal == internal:
-            return item
-    return None
-
-
-def remove_user_by_internal(internal):
-    global G_USERS_AUTH
-    G_USERS_AUTH[:] = [item for item in G_USERS_AUTH if item.get('user').internal != internal]
-
-    app.logger.info('remove_user_by_internal: G_USERS_AUTH {}'.format(G_USERS_AUTH))
-    return G_USERS_AUTH
-
-
-G_USERS_AUTH = []
-
-
 @login_manager.user_loader
-def load_user(internal):
-    user = None
-    token = None
-
-    app.logger.info('load_user: user-internal {}'.format(internal))
-    item = find_user_by_internal(internal=internal)
-    if item:
-        user = item.get('user')
-        token = item.get('token')
+def load_user():
+    user = session['atlas_jwt_user']
+    token = session['atlas_jwt_token']
 
     app.logger.info('load_user: user {} / token {}'.format(user, token))
     if user and token:
@@ -62,6 +24,8 @@ def load_user(internal):
             claims = jwt_decode(token)
         except (JWTError, ExpiredSignatureError, JWTClaimsError) as e:
             app.logger.error('Authentication Exception for user: {}'.format(e))
+            session.pop('atlas_jwt_user', None)
+            session.pop('atlas_jwt_token', None)
             return None
     return user
 
@@ -91,7 +55,8 @@ def login():
                 else:
                     login_user(user, remember=form.remember_me.data)
                     session.permanent = True
-                    add_user_global_auth(transaction.get('access_token'), user)
+                    session['atlas_jwt_user'] = user
+                    session['atlas_jwt_token'] = transaction.get('access_token')
 
                     return redirect(next_url or url_for('website.index'))
             else:
@@ -103,6 +68,9 @@ def login():
 @auth.route('/logout', methods=['GET'])
 @login_required
 def logout():
+    session.pop('atlas_jwt_user', None)
+    session.pop('atlas_jwt_token', None)
+
     logout_user()
     return redirect('login')
 

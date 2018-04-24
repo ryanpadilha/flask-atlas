@@ -34,5 +34,5 @@ UPLOADS_DEFAULT_URL = 'http://{}:{}/{}'.format(RUN_HOST, RUN_PORT, 'static/uploa
 UPLOADED_IMAGES_DEST = APP_DIR + '/brain/static/uploads/images/'
 UPLOADED_IMAGES_URL = 'http://{}:{}/{}'.format(RUN_HOST, RUN_PORT, 'static/uploads/images/')
 
-REMEMBER_COOKIE_DURATION = datetime.timedelta(hours=24)
-PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=10)
+# REMEMBER_COOKIE_DURATION = datetime.timedelta(hours=24)
+# PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=10)
