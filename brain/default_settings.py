@@ -17,7 +17,7 @@ LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOGGING_LOCATION = 'flask-atlas.log'
 LOGGING_LEVEL = logging.INFO
 
-DEBUG = False
+DEBUG = True
 SQLALCHEMY_ECHO = False
 USE_RELOADER = False
 JSON_SORT_KEYS = False
