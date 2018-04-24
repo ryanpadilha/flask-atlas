@@ -37,7 +37,9 @@ def find_user_by_internal(internal):
 
 
 def remove_user_by_internal(internal):
+    global G_USERS_AUTH
     G_USERS_AUTH[:] = [item for item in G_USERS_AUTH if item.get('user').internal != internal]
+
     app.logger.info('remove_user_by_internal: G_USERS_AUTH {}'.format(G_USERS_AUTH))
     return G_USERS_AUTH
 

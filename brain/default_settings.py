@@ -13,9 +13,10 @@ WTF_CSRF_SECRET_KEY = 'Cmy7R2I3DfVptP4BcyVS'
 
 TEMPLATES_AUTO_RELOAD = True
 
+# https://docs.python.org/3/howto/logging.html
 LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOGGING_LOCATION = 'flask-atlas.log'
-LOGGING_LEVEL = logging.INFO
+LOGGING_LEVEL = logging.DEBUG
 
 DEBUG = True
 SQLALCHEMY_ECHO = False
