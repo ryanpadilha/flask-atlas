@@ -67,9 +67,10 @@ class AuthenticationObject(BaseModel):
         self.password = password
 
 
-class UserObject(UserMixin, BaseModel):
+class UserObject(BaseModel):
     def __init__(self, active, name, phone, document_main, username, user_email, file_name, file_url, company,
-                 occupation, password=None, last_password_reset_date=None, roles=None, internal=None, created=None):
+                 occupation, password=None, last_password_reset_date=None, roles=None, internal=None, created=None,
+                 is_active=True, is_authenticated=True, is_anonymous=False):
         self.internal = internal
         self.created = created
         self.active = active
@@ -85,6 +86,9 @@ class UserObject(UserMixin, BaseModel):
         self.company = company
         self.occupation = occupation
         self.roles = roles or []
+        self.is_active = is_active
+        self.is_authenticated = is_authenticated
+        self.is_anonymous = is_anonymous
 
     def get_id(self):
         return self.internal

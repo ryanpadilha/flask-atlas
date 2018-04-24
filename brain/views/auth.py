@@ -1,22 +1,30 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, session
+from flask import Blueprint, render_template, flash, redirect, url_for, request, session, json
 from flask_login import login_required, login_user, logout_user
 from ..forms import LoginForm
 from ..application import login_manager
 from ..util.library import jwt_decode
 from ..util.enums import FlashMessagesCategory
 from .client_api import LoginResource, UserResource
-from ..models import AuthenticationObject, ErrorObject
+from ..models import AuthenticationObject, ErrorObject, UserObject
 from ..util.authentication import AuthHeader
 from jose.exceptions import JWTError, ExpiredSignatureError, JWTClaimsError
 from flask import current_app as app
 
-auth = Blueprint('auth', __name__)
+auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @login_manager.user_loader
-def load_user():
-    user = session['atlas_jwt_user']
-    token = session['atlas_jwt_token']
+def load_user(internal):
+    user = None
+    token = None
+
+    try:
+        if session['atlas_jwt_user']:
+            user = UserObject.from_dict(session['atlas_jwt_user'])
+        if session['atlas_jwt_token']:
+            token = session['atlas_jwt_token']
+    except Exception as e:
+        return None
 
     app.logger.info('load_user: user {} / token {}'.format(user, token))
     if user and token:
@@ -55,7 +63,7 @@ def login():
                 else:
                     login_user(user, remember=form.remember_me.data)
                     session.permanent = True
-                    session['atlas_jwt_user'] = user
+                    session['atlas_jwt_user'] = json.loads(user.to_json())
                     session['atlas_jwt_token'] = transaction.get('access_token')
 
                     return redirect(next_url or url_for('website.index'))
@@ -72,5 +80,5 @@ def logout():
     session.pop('atlas_jwt_token', None)
 
     logout_user()
-    return redirect('login')
+    return redirect(url_for('auth.login'))
 
