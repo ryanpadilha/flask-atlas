@@ -62,6 +62,7 @@ class IntegrationResource(object):
                 data = data.encode('utf-8')
 
             r = requests.Response()
+            app.logger.info('invoke request url: {}'.format(url))
 
             if request_method == RequestMethod.GET:
                 r = requests.get(url=url, headers=self.headers(), allow_redirects=False, timeout=self.timeout, **kwargs)
