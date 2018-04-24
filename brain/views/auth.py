@@ -17,6 +17,8 @@ G_USERS_AUTH = []
 
 
 def add_user_global_auth(token, user):
+    app.logger.info('add_user_global_auth: user {}, token {}'.format(user, token))
+
     global G_USERS_AUTH
     remove_user_by_internal(user.internal)
     G_USERS_AUTH.append(
@@ -36,6 +38,7 @@ def find_user_by_internal(internal):
 
 def remove_user_by_internal(internal):
     G_USERS_AUTH[:] = [item for item in G_USERS_AUTH if item.get('user').internal != internal]
+    app.logger.info('remove_user_by_internal: G_USERS_AUTH {}'.format(G_USERS_AUTH))
     return G_USERS_AUTH
 
 
@@ -49,6 +52,7 @@ def load_user(internal):
         user = item.get('user')
         token = item.get('token')
 
+    app.logger.info('load_user: user {} / token {}'.format(user, token))
     if user and token:
         try:
             claims = jwt_decode(token)
