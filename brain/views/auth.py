@@ -31,6 +31,7 @@ def add_user_global_auth(token, user):
 
 def find_user_by_internal(internal):
     for item in G_USERS_AUTH:
+        app.logger.info('find_user_by_internal: item {}'.format(item))
         if item.get('user').internal == internal:
             return item
     return None
