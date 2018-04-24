@@ -15,7 +15,7 @@ TEMPLATES_AUTO_RELOAD = True
 
 LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOGGING_LOCATION = 'flask-atlas.log'
-LOGGING_LEVEL = logging.ERROR
+LOGGING_LEVEL = logging.INFO
 
 DEBUG = False
 SQLALCHEMY_ECHO = False
