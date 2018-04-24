@@ -20,7 +20,7 @@ def add_user_global_auth(token, user):
     app.logger.info('add_user_global_auth: user {}, token {}'.format(user, token))
 
     global G_USERS_AUTH
-    remove_user_by_internal(user.internal)
+    # remove_user_by_internal(user.internal)
     G_USERS_AUTH.append(
         {
             'token': token,
