@@ -129,6 +129,9 @@ class UserObject(UserMixin, BaseModel):
         else:
             UserObject.from_dict(json_data)
 
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__, self.__dict__)
+
 
 class RoleObject(BaseModel):
     def __init__(self, name, type, description, internal=None, created=None):
