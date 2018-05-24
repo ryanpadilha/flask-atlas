@@ -6,38 +6,36 @@ from ..models import UserObject, RoleObject, ErrorObject
 from ..util.authentication import AuthHeader
 from ..util.enums import RequestMethod
 
-mode = ''
 
-if mode == 'prd':
-    from ..prd_instance import config
-    API_BASE_URL = config.API_BASE_URL
-else:
-    from ..dev_instance import config
-    API_BASE_URL = config.API_BASE_URL
+class ApiResource(object):
+    def __init__(self):
+        self.api_url_backend = app.config['API_URL_BACKEND']
 
+    def get_user(self):
+        return {
+            'login': self.api_url_backend + '/api/v1/auth/login',
+            'find_by_username': self.api_url_backend + '/api/v1/auth/users/search/?username={}',
+            'list': self.api_url_backend + '/api/v1/auth/users',
+            'get_by_internal': self.api_url_backend + '/api/v1/auth/users/{}',
+            'persist': self.api_url_backend + '/api/v1/auth/users',
+            'update': self.api_url_backend + '/api/v1/auth/users/{}',
+            'delete': self.api_url_backend + '/api/v1/auth/users/{}',
+        }
 
-API_USER = {
-    'login': API_BASE_URL + '/api/v1/auth/login',
-    'find_by_username': API_BASE_URL + '/api/v1/auth/users/search/?username={}',
-    'list': API_BASE_URL + '/api/v1/auth/users',
-    'get_by_internal': API_BASE_URL + '/api/v1/auth/users/{}',
-    'persist': API_BASE_URL + '/api/v1/auth/users',
-    'update': API_BASE_URL + '/api/v1/auth/users/{}',
-    'delete': API_BASE_URL + '/api/v1/auth/users/{}',
-}
-
-API_USER_GROUP = {
-    'list': API_BASE_URL + '/api/v1/auth/roles',
-    'get_by_internal': API_BASE_URL + '/api/v1/auth/roles/{}',
-    'persist': API_BASE_URL + '/api/v1/auth/roles',
-    'update': API_BASE_URL + '/api/v1/auth/roles/{}',
-    'delete': API_BASE_URL + '/api/v1/auth/roles/{}',
-}
+    def get_user_group(self):
+        return {
+            'list': self.api_url_backend + '/api/v1/auth/roles',
+            'get_by_internal': self.api_url_backend + '/api/v1/auth/roles/{}',
+            'persist': self.api_url_backend + '/api/v1/auth/roles',
+            'update': self.api_url_backend + '/api/v1/auth/roles/{}',
+            'delete': self.api_url_backend + '/api/v1/auth/roles/{}',
+        }
 
 
 class IntegrationResource(object):
-    def __init__(self, credentials, timeout=120):
+    def __init__(self, credentials, api_dict, timeout=120):
         self.credentials = credentials
+        self.api_dict = api_dict
         self.timeout = timeout
 
     def headers(self):
@@ -95,57 +93,58 @@ class IntegrationResource(object):
 
 class LoginResource(IntegrationResource):
     def __init__(self):
-        super(LoginResource, self).__init__(credentials=AuthHeader.get_credentials())
+        super(LoginResource, self).__init__(credentials=AuthHeader.get_credentials(), api_dict=ApiResource().get_user())
 
     def authentication(self, data):
-        return self.invoke_request(request_method=RequestMethod.POST, url=API_USER['login'], data=data)
+        return self.invoke_request(request_method=RequestMethod.POST, url=self.api_dict.get('login'), data=data)
 
 
 class UserResource(IntegrationResource):
     def __init__(self):
-        super(UserResource, self).__init__(credentials=AuthHeader.get_credentials())
+        super(UserResource, self).__init__(credentials=AuthHeader.get_credentials(), api_dict=ApiResource().get_user())
 
     def list(self):
-        obj = self.invoke_request(RequestMethod.GET, url=API_USER['list'])
+        obj = self.invoke_request(RequestMethod.GET, url=self.api_dict.get('list'))
         return [] if isinstance(obj, ErrorObject) else UserObject.to_list_of_object(obj)
 
     def get_by_internal(self, internal):
-        obj = self.invoke_request(RequestMethod.GET, url=API_USER['get_by_internal'].format(internal))
+        obj = self.invoke_request(RequestMethod.GET, url=self.api_dict.get('get_by_internal').format(internal))
         return obj if isinstance(obj, ErrorObject) else UserObject.from_dict(obj)
 
     def find_by_username(self, username):
-        obj = self.invoke_request(RequestMethod.GET, url=API_USER['find_by_username'].format(username))
+        obj = self.invoke_request(RequestMethod.GET, url=self.api_dict.get('find_by_username').format(username))
         return obj if isinstance(obj, ErrorObject) else UserObject.from_dict(obj)
 
     def persist(self, data):
-        obj = self.invoke_request(RequestMethod.POST, url=API_USER['persist'], data=data)
+        obj = self.invoke_request(RequestMethod.POST, url=self.api_dict.get('persist'), data=data)
         return obj if isinstance(obj, ErrorObject) else UserObject.from_dict(obj)
 
     def update(self, internal, data):
-        return self.invoke_request(RequestMethod.PUT, url=API_USER['update'].format(internal), data=data)
+        return self.invoke_request(RequestMethod.PUT, url=self.api_dict.get('update').format(internal), data=data)
 
     def delete_entity(self, internal):
-        return self.invoke_request(RequestMethod.DELETE, url=API_USER['delete'].format(internal))
+        return self.invoke_request(RequestMethod.DELETE, url=self.api_dict.get('delete').format(internal))
 
 
 class RoleResource(IntegrationResource):
     def __init__(self):
-        super(RoleResource, self).__init__(credentials=AuthHeader.get_credentials())
+        super(RoleResource, self).__init__(credentials=AuthHeader.get_credentials(),
+                                           api_dict=ApiResource().get_user_group())
 
     def list(self):
-        obj = self.invoke_request(RequestMethod.GET, url=API_USER_GROUP['list'])
+        obj = self.invoke_request(RequestMethod.GET, url=self.api_dict.get('list'))
         return [] if isinstance(obj, ErrorObject) else RoleObject.to_list_of_object(obj)
 
     def get_by_internal(self, internal):
-        obj = self.invoke_request(RequestMethod.GET, url=API_USER_GROUP['get_by_internal'].format(internal))
+        obj = self.invoke_request(RequestMethod.GET, url=self.api_dict.get('get_by_internal').format(internal))
         return obj if isinstance(obj, ErrorObject) else RoleObject.from_dict(obj)
 
     def persist(self, data):
-        obj = self.invoke_request(RequestMethod.POST, url=API_USER_GROUP['persist'], data=data)
+        obj = self.invoke_request(RequestMethod.POST, url=self.api_dict.get('persist'), data=data)
         return obj if isinstance(obj, ErrorObject) else RoleObject.from_dict(obj)
 
     def update(self, internal, data):
-        return self.invoke_request(RequestMethod.PUT, url=API_USER_GROUP['update'].format(internal), data=data)
+        return self.invoke_request(RequestMethod.PUT, url=self.api_dict.get('update').format(internal), data=data)
 
     def delete_entity(self, internal):
-        return self.invoke_request(RequestMethod.DELETE, url=API_USER_GROUP['delete'].format(internal))
+        return self.invoke_request(RequestMethod.DELETE, url=self.api_dict.get('delete').format(internal))

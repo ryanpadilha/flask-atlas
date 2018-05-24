@@ -5,7 +5,6 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_uuid import FlaskUUID
 from flask_marshmallow import Marshmallow
-from flask_uploads import UploadSet, IMAGES, configure_uploads
 
 
 login_manager = LoginManager()
@@ -15,8 +14,6 @@ login_manager.login_message_category = 'info'
 
 flask_uuid = FlaskUUID()
 ma = Marshmallow()
-
-f_images = UploadSet('images', IMAGES)
 
 
 def create_app(mode=None):
@@ -39,7 +36,7 @@ def create_app(mode=None):
         app.config.from_pyfile('config.py')
     else:
         app = Flask('brain',
-                    instance_relative_config=True)
+                    instance_relative_config=False)
 
         app.config.from_object('brain.default_settings')
 
@@ -52,9 +49,6 @@ def create_app(mode=None):
     handler.setLevel(app.config['LOGGING_LEVEL'])
     handler.setFormatter(logging.Formatter(app.config['LOGGING_FORMAT']))
     app.logger.addHandler(handler)
-
-    # flask-uploads
-    configure_uploads(app, f_images)
 
     # blueprint section
     from .views.website import website

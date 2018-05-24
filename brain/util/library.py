@@ -18,7 +18,7 @@ def jwt_decode(token, secret_key=JWT_SECRET, algorithms='HS512'):
     }
 
     decode_value = jwt.decode(token=token, key=secret_key, algorithms=algorithms,
-                              options=options, audience='web', issuer='wplex-atlas-auth')
+                              options=options, audience='web', issuer='atlas-auth-server')
     return decode_value
 
 

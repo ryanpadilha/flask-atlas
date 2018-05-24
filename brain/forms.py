@@ -6,7 +6,6 @@ from wtforms import PasswordField, StringField, SelectMultipleField, \
 
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 from flask_wtf.file import FileAllowed
-from .application import f_images
 from .views.client_api import RoleResource
 
 
@@ -50,7 +49,7 @@ class UserEditForm(FlaskForm):
     name = StringField(u'Nome Completo *', validators=[DataRequired(u'Informe o nome completo')])
     user_email = StringField(u'E-mail *',
                              validators=[DataRequired(u'Informe o e-mail'), Email(u'Endereço de e-mail inválido')])
-    photo = FileField(u'Foto do Perfil', validators=[FileAllowed(f_images, 'Selecione apenas imagens')])
+    photo = FileField(u'Foto do Perfil') # validators=[FileAllowed(f_images, 'Selecione apenas imagens')]
     company = StringField(u'Empresa')
     occupation = StringField(u'Cargo')
     phone = StringField(u'Telefone Celular *', validators=[DataRequired(u'Informe o telefone')])
