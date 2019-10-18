@@ -5,7 +5,7 @@ click==6.7
 Cython==0.28.1
 docutils==0.14
 dominate==2.3.1
-ecdsa==0.13
+ecdsa==0.13.3
 Flask==0.12.2
 Flask-Cache==0.13.1
 Flask-ErrorHandler==0.1.0
